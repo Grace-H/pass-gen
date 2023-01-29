@@ -1,0 +1,19 @@
+#+title: pass-gen todo
+#+author: Grace Hunter
+
+* Thoughts
+- How to generate syllables?
+  - consonant-vowel-consonant
+  - Use diphthongs, consonant blends, and digraphs
+  - Use a nonsense word list
+    - Would have to do math, but generating consonant-vowel-consonant
+      will likely yield more possible syllables
+  - Also have "number" and "symbol" syllables
+- Options - Should these be minimums or exact (~==~ or ~>=~)
+  - m - number of syllables
+  - l - exact length of password, overrides m
+  - s - number of symbols (special characters - verify commonly allows symbols)
+  - n - minimum number of numbers
+  - max number of characters?
+- Default
+  - Keep generating random syllables until reach length 12
