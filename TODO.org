@@ -17,3 +17,4 @@
   - max number of characters?
 - Default
   - Keep generating random syllables until reach length 12
+- bash, python, or c?
