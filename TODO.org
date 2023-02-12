@@ -19,3 +19,8 @@
 - Default
   - Keep generating random syllables until reach length 12
 - bash, python, or c?
+
+* Next steps
+** TODO Determine good way to generate random numbers when generating syllables
+** TODO Generate random syllables
+** TODO Generate random symbols
