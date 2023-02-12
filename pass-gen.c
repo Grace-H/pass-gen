@@ -7,6 +7,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+int generator(char syll[4]);
+int syllable(char syll[4]);
+
 int main(int argc, char **argv){
   int l = 0, s = 2, n = 2, m = 8;
   int c = 0; // copy to clipboard
@@ -40,4 +43,23 @@ int main(int argc, char **argv){
   
   printf("password123\n");
   return 0;
+}
+
+int generator(char syll[4]){
+  int len = 0;
+  
+  int type = rand() * 3;
+
+  if(type == 0){
+    len = syllable(&syll);
+  } else if (type == 1) {
+    len = 1;
+    char[0] = rand() * 10;
+  } else if (type == 2) {
+    len = 1;
+  }
+
+  syll[len] = '\0';
+
+  return len;
 }
