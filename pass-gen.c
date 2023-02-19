@@ -6,6 +6,9 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <openssl/rand.h>
+
+#define RAND_BYTES 8
 
 int generator(char syll[4]);
 int syllable(char syll[4]);
@@ -47,14 +50,19 @@ int main(int argc, char **argv){
 
 int generator(char syll[4]){
   int len = 0;
+  unsigned char buf[RAND_BYTES];
   
-  int type = rand() * 3;
+  int ret = RAND_priv_bytes(buf, RAND_BYTES);
+  if (ret < 1)
+    return 1;
 
+  int type = atoi(buf);
+  
   if(type == 0){
     len = syllable(&syll);
   } else if (type == 1) {
     len = 1;
-    char[0] = rand() * 10;
+    char[0] = rand() % 10;
   } else if (type == 2) {
     len = 1;
   }
