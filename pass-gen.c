@@ -52,7 +52,7 @@ int generator(char syll[4]){
   int len = 0;
   unsigned char buf[RAND_BYTES];
   
-  int ret = RAND_priv_bytes(buf, RAND_BYTES);
+  int ret = RAND_bytes(buf, RAND_BYTES);
   if (ret < 1)
     return -1;
 
@@ -76,7 +76,7 @@ int syllable(char syll[4]){
   int len = 0;
   unsigned char buf[RAND_BYTES];
 
-  int ret = RAND_priv_bytes(buf, RAND_BYTES);
+  int ret = RAND_bytes(buf, RAND_BYTES);
   if (ret < 1)
     return -1;
   return len;
