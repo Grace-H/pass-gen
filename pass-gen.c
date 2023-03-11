@@ -7,12 +7,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <openssl/rand.h>
 
 #define RAND_BYTES 4
 #define MAX_BEGS 46
-#define MAX_MIDS 12
-#define MAX_ENDS 45
+#define MAX_MIDS 10
+#define MAX_ENDS 42
+
+int generator(char *syll, int n, int m);
+int syllable(char *syll, int n);
 
 char begs[MAX_BEGS][3] = {
   "b\0", "c\0","d\0", "f\0", "g\0", "h\0", "j\0", "k\0", "l\0", "m\0",
@@ -21,20 +25,16 @@ char begs[MAX_BEGS][3] = {
   "fr\0", "gr\0", "pr\0", "tr\0", "sc\0", "sk\0", "sm\0", "sn\0", "sw\0", "tw\0",
   "ch\0", "th\0", "cl\0", "sp\0", "st\0", "dw\0"  };
 char mids[MAX_MIDS][3] = {
-  "a\0", "e\0", "i\0", "o\0", "u\0", "ai\0", "ee\0", "oo\0", "ow\0", "ou\0",
-  "ea\0", "ie\0"  };
+  "a\0", "e\0", "i\0", "o\0", "u\0", "ai\0", "ee\0", "oo\0", "ou\0", "ea\0" };
 char ends[MAX_ENDS][3] = {
     "b\0", "c\0", "d\0", "f\0", "g\0", "h\0", "j\0", "k\0", "l\0", "m\0",
     "n\0", "p\0", "r\0", "s\0", "t\0", "v\0", "w\0", "x\0", "z\0", "sh\0",
-    "rb\0", "rd\0", "rd\0", "sk\0", "sh\0", "ch\0", "th\0", "rm\0", "en\0", "st\0",
-    "lk\0", "ll\0", "ck\0", "ft\0", "lt\0", "nt\0", "xt\0", "lb\0", "ld\0", "lp\0",
-    "nk\0", "sp\0", "mp\0", "zz\0", "ff\0" };
-
-int generator(char *syll, int n);
-int syllable(char *syll, int n);
+    "rb\0", "rd\0", "rd\0", "sk\0", "sh\0", "ch\0", "th\0", "rm\0", "st\0", "lk\0",
+    "ll\0", "ck\0", "ft\0", "lt\0", "nt\0", "ld\0", "lp\0", "nk\0", "sp\0", "mp\0",
+    "zz\0", "ff\0" };
 
 int main(int argc, char **argv){
-  int l = 0, s = 2, n = 2, m = 8;
+  int l = 0, s = 2, m = 4, n = 12;
   int c = 0; // copy to clipboard
   char pass[16];
   
@@ -65,7 +65,7 @@ int main(int argc, char **argv){
     }
   }
 
-  if (generator(pass, 16) < 0){
+  if (generator(pass, n, m) < 0){
     fprintf(stderr, "generator\n");
   }
   fprintf(stdout, "%s\n", pass);
@@ -74,28 +74,33 @@ int main(int argc, char **argv){
 
 // returns length of generated segment, negative on failure
 int generator(char *syll, int n, int m) {
-  int type, ret, len = 0;
+  int type, ret, i = 0, len = 0;
   unsigned char buf[RAND_BYTES];
-  int ret = RAND_bytes(buf, RAND_BYTES);
-  if (ret < 0) {
-    fprintf(stderr, "RAND_bytes: too few rand bytes\n");
-    return -1;
-  }
-  
-  // TODO casting to int only casts first byte
-  int type = (int) *buf % 2;
-  fprintf(stderr, "type: %d\n", type);
-  if (type == 0) {
-    len += syllable(syll, n);
-  } else if (type == 1) {
+
+  while (i < m && len < n) {
     ret = RAND_bytes(buf, RAND_BYTES);
-    if (ret < 0)
+    if (ret < 0) {
+      fprintf(stderr, "RAND_bytes: too few rand bytes\n");
       return -1;
-    syll[len++] = 48 + (int) *buf % 10;
-  } /*else if (type == 2) {
+    }
     
-    len += 1;
-    }*/
+    // TODO casting to int only casts first byte
+    type = (int) *buf % 2;
+    fprintf(stderr, "type: %d\n", type);
+    if (type == 0) {
+      int b = syllable(&syll[len], n - len);
+      if (b > 0)
+	len += b; // only advance len if remaining space was big enough
+    } else if (type == 1) {
+      ret = RAND_bytes(buf, RAND_BYTES);
+      if (ret < 0)
+	return -1;
+      syll[len++] = 48 + (int) *buf % 10;
+    } /*else if (type == 2) { // symbol	
+	len += 1;
+	}*/
+    i++;
+  }
 
   syll[len] = '\0';
 
@@ -145,6 +150,7 @@ int syllable(char *syll, int n){
     fprintf(stderr, "segment too short\n");
     return -1;
   }
+  syll[0] = toupper(syll[0]);
   syll[len] = '\0';
 
   return len;
