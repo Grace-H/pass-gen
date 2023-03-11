@@ -65,30 +65,37 @@ int main(int argc, char **argv){
     }
   }
 
-  generator(pass, 16);
-  printf("%s\n", pass);
+  if (generator(pass, 16) < 0){
+    fprintf(stderr, "generator\n");
+  }
+  fprintf(stdout, "%s\n", pass);
   return 0;
 }
 
 // returns length of generated segment, negative on failure
-int generator(char *syll, int n) {
-  int len = 0;
+int generator(char *syll, int n, int m) {
+  int type, ret, len = 0;
   unsigned char buf[RAND_BYTES];
-  
   int ret = RAND_bytes(buf, RAND_BYTES);
-  if (ret < 1)
+  if (ret < 0) {
+    fprintf(stderr, "RAND_bytes: too few rand bytes\n");
     return -1;
-
-  int type = atoi(buf);
-  
-  if(type == 0){
-    len = syllable(syll);
-  } else if (type == 1) {
-    len = 1;
-    syll[0] = rand() % 10;
-  } else if (type == 2) {
-    len = 1;
   }
+  
+  // TODO casting to int only casts first byte
+  int type = (int) *buf % 2;
+  fprintf(stderr, "type: %d\n", type);
+  if (type == 0) {
+    len += syllable(syll, n);
+  } else if (type == 1) {
+    ret = RAND_bytes(buf, RAND_BYTES);
+    if (ret < 0)
+      return -1;
+    syll[len++] = 48 + (int) *buf % 10;
+  } /*else if (type == 2) {
+    
+    len += 1;
+    }*/
 
   syll[len] = '\0';
 
@@ -104,7 +111,7 @@ int syllable(char *syll, int n){
 
   // beginning
   int ret = RAND_bytes(buf, RAND_BYTES);
-  if (ret < 1)
+  if (ret < 0)
     return -1;
 
   int begi = (int) *buf % MAX_BEGS;
@@ -112,7 +119,7 @@ int syllable(char *syll, int n){
 
   // middle
   ret = RAND_bytes(buf, RAND_BYTES);
-  if (ret < 1)
+  if (ret < 0)
     return -1;
 
   int midi = (int) *buf % MAX_MIDS;
@@ -120,7 +127,7 @@ int syllable(char *syll, int n){
 
   // end
   ret = RAND_bytes(buf, RAND_BYTES);
-  if (ret < 1)
+  if (ret < 0)
     return -1;
 
   int endi = (int) *buf % MAX_ENDS;
