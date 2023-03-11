@@ -39,7 +39,7 @@ int main(int argc, char **argv){
   char pass[16];
   
   int opt;
-  while((opt = getopt(argc, argv, ":l:s:n:ch")) != -1){
+  while((opt = getopt(argc, argv, ":l:s:n:m:ch")) != -1){
     switch(opt){
     case 'h':
       printf("helping you...\n");
@@ -61,7 +61,7 @@ int main(int argc, char **argv){
       return 1;
     case '?':
       fprintf(stderr, "Unexpected option '-%c'\n", optopt);
-      break;
+      return 1;
     }
   }
 
