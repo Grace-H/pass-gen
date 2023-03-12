@@ -34,9 +34,8 @@ char ends[MAX_ENDS][3] = {
     "zz\0", "ff\0" };
 
 int main(int argc, char **argv){
-  int l = 0, s = 2, m = 4, n = 12;
+  int l = 0, s = 2, m = 8, n = 24;
   int c = 0; // copy to clipboard
-  char pass[16];
   
   int opt;
   while((opt = getopt(argc, argv, ":l:s:n:m:ch")) != -1){
@@ -65,6 +64,7 @@ int main(int argc, char **argv){
     }
   }
 
+  char pass[n];
   if (generator(pass, n, m) < 0){
     fprintf(stderr, "generator\n");
   }
