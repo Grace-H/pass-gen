@@ -102,12 +102,12 @@ int generator(char *syll, int n, int m) {
       ret = RAND_bytes(buf, RAND_BYTES);
       if (ret < 0)
 	return -1;
-      syll[len++] = 48 + (int) *buf % 10;
+      syll[len++] = 48 + *(unsigned int *) buf % 10;
     } else if (type == 2) { // symbol	
 	ret = RAND_bytes(buf, RAND_BYTES);
 	if (ret < 0)
 	  return -1;
-	syll[len++] = syms[(int) *buf % MAX_SYMS][0];
+	syll[len++] = syms[*(unsigned int *) buf % MAX_SYMS][0];
     }
     i++;
   }
@@ -129,7 +129,7 @@ int syllable(char *syll, int n){
   if (ret < 0)
     return -1;
 
-  int begi = (int) *buf % MAX_BEGS;
+  int begi = *(unsigned int *) buf % MAX_BEGS;
   int begz = strlen(begs[begi]);
 
   // middle
@@ -137,7 +137,7 @@ int syllable(char *syll, int n){
   if (ret < 0)
     return -1;
 
-  int midi = (int) *buf % MAX_MIDS;
+  int midi = *(unsigned int *) buf % MAX_MIDS;
   int midz = strlen(mids[midi]);
 
   // end
@@ -145,7 +145,7 @@ int syllable(char *syll, int n){
   if (ret < 0)
     return -1;
 
-  int endi = (int) *buf % MAX_ENDS;
+  int endi = *(unsigned int *) buf % MAX_ENDS;
   int endz = strlen(ends[endi]);
 
   // assemble
