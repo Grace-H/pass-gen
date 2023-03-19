@@ -14,24 +14,30 @@
 #define MAX_BEGS 46
 #define MAX_MIDS 10
 #define MAX_ENDS 42
+#define MAX_SYMS 32
 
 int generator(char *syll, int n, int m);
 int syllable(char *syll, int n);
 
-char begs[MAX_BEGS][3] = {
+char begs[46][3] = {
   "b\0", "c\0","d\0", "f\0", "g\0", "h\0", "j\0", "k\0", "l\0", "m\0",
   "n\0", "p\0", "q\0", "r\0", "s\0", "t\0", "v\0", "w\0", "x\0", "y\0",
   "z\0","sh\0", "bl\0", "fl\0", "gl\0", "pl\0", "sl\0", "br\0", "cr\0", "dr\0",
   "fr\0", "gr\0", "pr\0", "tr\0", "sc\0", "sk\0", "sm\0", "sn\0", "sw\0", "tw\0",
   "ch\0", "th\0", "cl\0", "sp\0", "st\0", "dw\0"  };
-char mids[MAX_MIDS][3] = {
+char mids[10][3] = {
   "a\0", "e\0", "i\0", "o\0", "u\0", "ai\0", "ee\0", "oo\0", "ou\0", "ea\0" };
-char ends[MAX_ENDS][3] = {
-    "b\0", "c\0", "d\0", "f\0", "g\0", "h\0", "j\0", "k\0", "l\0", "m\0",
-    "n\0", "p\0", "r\0", "s\0", "t\0", "v\0", "w\0", "x\0", "z\0", "sh\0",
-    "rb\0", "rd\0", "rd\0", "sk\0", "sh\0", "ch\0", "th\0", "rm\0", "st\0", "lk\0",
-    "ll\0", "ck\0", "ft\0", "lt\0", "nt\0", "ld\0", "lp\0", "nk\0", "sp\0", "mp\0",
-    "zz\0", "ff\0" };
+char ends[42][3] = {
+  "b\0", "c\0", "d\0", "f\0", "g\0", "h\0", "j\0", "k\0", "l\0", "m\0",
+  "n\0", "p\0", "r\0", "s\0", "t\0", "v\0", "w\0", "x\0", "z\0", "sh\0",
+  "rb\0", "rd\0", "rd\0", "sk\0", "sh\0", "ch\0", "th\0", "rm\0", "st\0", "lk\0",
+  "ll\0", "ck\0", "ft\0", "lt\0", "nt\0", "ld\0", "lp\0", "nk\0", "sp\0", "mp\0",
+  "zz\0", "ff\0" };
+char syms[32][2] = {
+  "!\0", "\"\0", "#\0", "$\0", "%\0", "&\0", "'\0", "(\0", ")\0", "*\0",
+  "+\0", ",\0", "-\0", ".\0", "/\0", ":\0", ";\0", "<\0", "=\0", ">\0",
+  "?\0", "@\0", "[\0", "\\\0", "]\0", "^\0", "_\0", "`\0", "{\0", "|\0",
+  "}\0", "~\0" };
 
 int main(int argc, char **argv){
   int l = 0, s = 2, m = 8, n = 24;
@@ -85,7 +91,7 @@ int generator(char *syll, int n, int m) {
     }
     
     // TODO casting to int only casts first byte
-    type = (int) *buf % 2;
+    type = (int) *buf % 3;
     fprintf(stderr, "type: %d\n", type);
     if (type == 0) {
       int b = syllable(&syll[len], n - len);
@@ -96,9 +102,12 @@ int generator(char *syll, int n, int m) {
       if (ret < 0)
 	return -1;
       syll[len++] = 48 + (int) *buf % 10;
-    } /*else if (type == 2) { // symbol	
-	len += 1;
-	}*/
+    } else if (type == 2) { // symbol	
+	ret = RAND_bytes(buf, RAND_BYTES);
+	if (ret < 0)
+	  return -1;
+	syll[len++] = syms[(int) *buf % MAX_SYMS][0];
+    }
     i++;
   }
 
