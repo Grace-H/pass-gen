@@ -80,7 +80,8 @@ int main(int argc, char **argv){
 
 // returns length of generated segment, negative on failure
 int generator(char *syll, int n, int m) {
-  int type, ret, i = 0, len = 0;
+  unsigned int type;
+  int ret, i = 0, len = 0;
   unsigned char buf[RAND_BYTES];
 
   while (i < m && len < n) {
@@ -91,7 +92,7 @@ int generator(char *syll, int n, int m) {
     }
     
     // TODO casting to int only casts first byte
-    type = (int) *buf % 3;
+    type = *(unsigned int *) buf % 3;
     fprintf(stderr, "type: %d\n", type);
     if (type == 0) {
       int b = syllable(&syll[len], n - len);
