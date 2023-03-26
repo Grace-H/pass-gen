@@ -41,8 +41,8 @@ char syms[32][2] = {
 
 int main(int argc, char **argv){
   int l = 0, s = 2, m = 8, n = 24;
-  int c = 0; // copy to clipboard
-  
+  //  int c = 0; // copy to clipboard
+
   int opt;
   while((opt = getopt(argc, argv, ":l:s:n:m:ch")) != -1){
     switch(opt){
@@ -72,7 +72,7 @@ int main(int argc, char **argv){
 
   char pass[n];
   if (generator(pass, n, m) < 0){
-    fprintf(stderr, "generator\n");
+    perror("generator error");
   }
   fprintf(stdout, "%s\n", pass);
   return 0;
@@ -85,12 +85,12 @@ int generator(char *syll, int n, int m) {
   unsigned char buf[RAND_BYTES];
 
   while (i < m && len < n) {
-    ret = RAND_bytes(buf, RAND_BYTES);
-    if (ret < 0) {
-      fprintf(stderr, "RAND_bytes: too few rand bytes\n");
+    ret = RAND_priv_bytes(buf, RAND_BYTES);
+    if (ret != 1) {
+      fprintf(stderr, "RAND_priv_bytes: too few rand bytes\n");
       return -1;
     }
-    
+
     // TODO casting to int only casts first byte
     type = *(unsigned int *) buf % 3;
     fprintf(stderr, "type: %d\n", type);
@@ -99,13 +99,13 @@ int generator(char *syll, int n, int m) {
       if (b > 0)
 	len += b; // only advance len if remaining space was big enough
     } else if (type == 1) {
-      ret = RAND_bytes(buf, RAND_BYTES);
-      if (ret < 0)
+      ret = RAND_priv_bytes(buf, RAND_BYTES);
+      if (ret != 1)
 	return -1;
       syll[len++] = 48 + *(unsigned int *) buf % 10;
-    } else if (type == 2) { // symbol	
-	ret = RAND_bytes(buf, RAND_BYTES);
-	if (ret < 0)
+    } else if (type == 2) { // symbol
+	ret = RAND_priv_bytes(buf, RAND_BYTES);
+	if (ret != 1)
 	  return -1;
 	syll[len++] = syms[*(unsigned int *) buf % MAX_SYMS][0];
     }
@@ -120,30 +120,36 @@ int generator(char *syll, int n, int m) {
 // generate alpha syllable
 // params: syll (recommended min length 7)
 // returns length of syllable, negative on failure
-int syllable(char *syll, int n){
+int syllable(char *syll, int n) {
   int len = 0;
   unsigned char buf[RAND_BYTES];
 
   // beginning
-  int ret = RAND_bytes(buf, RAND_BYTES);
-  if (ret < 0)
+  int ret = RAND_priv_bytes(buf, RAND_BYTES);
+  if (ret != 1) {
+    perror("RAND_priv_bytes");
     return -1;
+  }
 
   int begi = *(unsigned int *) buf % MAX_BEGS;
   int begz = strlen(begs[begi]);
 
   // middle
-  ret = RAND_bytes(buf, RAND_BYTES);
-  if (ret < 0)
+  ret = RAND_priv_bytes(buf, RAND_BYTES);
+  if (ret != 1) {
+    perror("RAND_priv_bytes");
     return -1;
+  }
 
   int midi = *(unsigned int *) buf % MAX_MIDS;
   int midz = strlen(mids[midi]);
 
   // end
-  ret = RAND_bytes(buf, RAND_BYTES);
-  if (ret < 0)
+  ret = RAND_priv_bytes(buf, RAND_BYTES);
+  if (ret != 1) {
+    perror("RAND_priv_bytes");
     return -1;
+  }
 
   int endi = *(unsigned int *) buf % MAX_ENDS;
   int endz = strlen(ends[endi]);
