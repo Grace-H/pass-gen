@@ -87,22 +87,22 @@ int generator(char *syll, int n) {
     }
 
     // TODO casting to int only casts first byte
-    type = *(unsigned int *) buf % 3;
+    type = *(unsigned int *) buf % 4;
     fprintf(stderr, "type: %d\n", type);
-    if (type == 0) {
-      int b = syllable(&syll[len], n - len);
-      if (b > 0)
-	len += b; // only advance len if remaining space was big enough
-    } else if (type == 1) {
+    if (type == 0) {                          // number
       ret = RAND_priv_bytes(buf, RAND_BYTES);
       if (ret != 1)
 	return -1;
       syll[len++] = 48 + *(unsigned int *) buf % 10;
-    } else if (type == 2) { // symbol
+    } else if (type == 1) {                   // symbol
 	ret = RAND_priv_bytes(buf, RAND_BYTES);
 	if (ret != 1)
 	  return -1;
 	syll[len++] = syms[*(unsigned int *) buf % MAX_SYMS][0];
+    } else {                                  // syllable
+      int b = syllable(&syll[len], n - len);
+      if (b > 0)
+	len += b; // only advance len if remaining space was big enough
     }
   }
 
