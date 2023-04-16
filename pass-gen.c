@@ -16,7 +16,7 @@
 #define MAX_ENDS 42
 #define MAX_SYMS 32
 
-int generator(char *syll, int n, int m);
+int generator(char *syll, int n);
 int syllable(char *syll, int n);
 
 char begs[46][3] = {
@@ -40,8 +40,7 @@ char syms[32][2] = {
   "}\0", "~\0" };
 
 int main(int argc, char **argv){
-  int l = 0, s = 2, m = 8, n = 24;
-  //  int c = 0; // copy to clipboard
+  int s = 2, n = 16;
 
   int opt;
   while((opt = getopt(argc, argv, ":l:s:n:m:ch")) != -1){
@@ -49,17 +48,11 @@ int main(int argc, char **argv){
     case 'h':
       printf("helping you...\n");
       break;
-    case 'l':
-      l = atoi(optarg);
-      break;
     case 's':
       s = atoi(optarg);
       break;
     case 'n':
       n = atoi(optarg);
-      break;
-    case 'm':
-      m = atoi(optarg);
       break;
     case ':':
       fprintf(stderr, "Missing argument for option '-%c'\n", optopt);
@@ -71,20 +64,22 @@ int main(int argc, char **argv){
   }
 
   char pass[n];
-  if (generator(pass, n, m) < 0){
+  int len = generator(pass, n);
+  if (len < 0){
     perror("generator error");
   }
+
   fprintf(stdout, "%s\n", pass);
   return 0;
 }
 
 // returns length of generated segment, negative on failure
-int generator(char *syll, int n, int m) {
+int generator(char *syll, int n) {
   unsigned int type;
-  int ret, i = 0, len = 0;
+  int ret, len = 0;
   unsigned char buf[RAND_BYTES];
 
-  while (i < m && len < n) {
+  while (len < n) {
     ret = RAND_priv_bytes(buf, RAND_BYTES);
     if (ret != 1) {
       fprintf(stderr, "RAND_priv_bytes: too few rand bytes\n");
@@ -109,7 +104,6 @@ int generator(char *syll, int n, int m) {
 	  return -1;
 	syll[len++] = syms[*(unsigned int *) buf % MAX_SYMS][0];
     }
-    i++;
   }
 
   syll[len] = '\0';
