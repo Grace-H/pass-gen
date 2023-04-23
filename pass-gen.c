@@ -1,8 +1,8 @@
- /*
-  * pass-gen.c - pronouncable password generator
-  *
-  * author: Grace-H
-  */
+/*
+ * pass-gen.c - pronouncable password generator
+ *
+ * author: Grace-H
+ */
 
 #include <unistd.h>
 #include <stdio.h>
@@ -42,7 +42,7 @@ char syms[32][2] = {
 
 int main(int argc, char **argv){
   int n = 16, d = 0, s = 0;
-
+nn
   int opt;
   while((opt = getopt(argc, argv, ":l:s:n:d:h")) != -1){
     switch(opt){
@@ -94,26 +94,26 @@ int generator(char *pass, int n, int d, int s) {
 
       ret = RAND_priv_bytes(buf, RAND_BYTES);
       if (ret != 1) {
-	return -1;
+        return -1;
       }
       type = *(unsigned int *) buf % 4;
 
       if (type == 0) {                          // number
-	d_count++;
-	ret = RAND_priv_bytes(buf, RAND_BYTES);
-	if (ret != 1)
-	  return -1;
-	pass[len++] = 48 + *(unsigned int *) buf % 10;
+        d_count++;
+        ret = RAND_priv_bytes(buf, RAND_BYTES);
+        if (ret != 1)
+          return -1;
+        pass[len++] = 48 + *(unsigned int *) buf % 10;
       } else if (type == 1) {                   // symbol
-	s_count++;
-	ret = RAND_priv_bytes(buf, RAND_BYTES);
-	if (ret != 1)
-	  return -1;
-	pass[len++] = syms[*(unsigned int *) buf % MAX_SYMS][0];
+        s_count++;
+        ret = RAND_priv_bytes(buf, RAND_BYTES);
+        if (ret != 1)
+          return -1;
+        pass[len++] = syms[*(unsigned int *) buf % MAX_SYMS][0];
       } else {                                  // syllable
-	int b = syllable(&pass[len], n - len);
-	if (b > 0)
-	  len += b; // only advance len if remaining space was big enough
+        int b = syllable(&pass[len], n - len);
+        if (b > 0)
+          len += b; // only advance len if remaining space was big enough
       }
     }
 
