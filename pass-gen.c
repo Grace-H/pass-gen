@@ -42,7 +42,7 @@ char syms[32][2] = {
 
 int main(int argc, char **argv){
   int n = 16, d = 0, s = 0;
-nn
+
   int opt;
   while((opt = getopt(argc, argv, ":l:s:n:d:h")) != -1){
     switch(opt){
@@ -128,7 +128,6 @@ int generator(char *pass, int n, int d, int s) {
 // params: syll (recommended min length 7)
 // returns length of syllable, negative on failure
 int syllable(char *syll, int n) {
-  int len = 0;
   unsigned char buf[RAND_BYTES];
 
   // beginning
@@ -162,17 +161,18 @@ int syllable(char *syll, int n) {
   int endz = strlen(ends[endi]);
 
   // assemble
-  if (len + begz + midz + endz < n) {
-    strncpy(&syll[len], begs[begi], begz);
-    len += begz;
-    strncpy(&syll[len], mids[midi], midz);
-    len += midz;
-    strncpy(&syll[len], ends[endi], endz);
-    len += endz;
-  } else {
-    fprintf(stderr, "segment too short\n");
+  if (begz + midz + endz > n - 1) {
     return -1;
   }
+
+  int len = 0;
+  strncpy(&syll[len], begs[begi], begz);
+  len += begz;
+  strncpy(&syll[len], mids[midi], midz);
+  len += midz;
+  strncpy(&syll[len], ends[endi], endz);
+  len += endz;
+
   syll[0] = toupper(syll[0]);
   syll[len] = '\0';
 
