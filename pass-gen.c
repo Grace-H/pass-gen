@@ -1,4 +1,4 @@
-/* pass-gen.c - pronouncable password generator
+ /* pass-gen.c - pronouncable password generator
  *
  * author: Grace-H
  */
@@ -16,7 +16,7 @@
 #define MAX_ENDS 42
 #define MAX_SYMS 32
 
-int generator(char *syll, int n);
+int generator(char *buf, int n, int d, int s);
 int syllable(char *syll, int n);
 
 char begs[46][3] = {
@@ -40,10 +40,10 @@ char syms[32][2] = {
   "}\0", "~\0" };
 
 int main(int argc, char **argv){
-  int s = 2, n = 16;
+  int n = 16, d = 0, s = 0;
 
   int opt;
-  while((opt = getopt(argc, argv, ":l:s:n:m:ch")) != -1){
+  while((opt = getopt(argc, argv, ":l:s:n:d:h")) != -1){
     switch(opt){
     case 'h':
       printf("helping you...\n");
@@ -54,6 +54,9 @@ int main(int argc, char **argv){
     case 'n':
       n = atoi(optarg);
       break;
+    case 'd':
+      d = atoi(optarg);
+      break;
     case ':':
       fprintf(stderr, "Missing argument for option '-%c'\n", optopt);
       return 1;
@@ -63,8 +66,8 @@ int main(int argc, char **argv){
     }
   }
 
-  char pass[n];
-  int len = generator(pass, n);
+  char pass[n + 1];
+  int len = generator(pass, n + 1, d, s);
   if (len < 0){
     perror("generator error");
   }
@@ -74,39 +77,50 @@ int main(int argc, char **argv){
 }
 
 // returns length of generated segment, negative on failure
-int generator(char *syll, int n) {
+int generator(char *pass, int n, int d, int s) {
   unsigned int type;
-  int ret, len = 0;
+  int ret, len;
+  int d_count, s_count;
   unsigned char buf[RAND_BYTES];
 
-  while (len < n) {
-    ret = RAND_priv_bytes(buf, RAND_BYTES);
-    if (ret != 1) {
-      fprintf(stderr, "RAND_priv_bytes: too few rand bytes\n");
-      return -1;
-    }
+  // Keep generating passwords until syllable/digit requirements met
+  do {
+    d_count = 0, s_count = 0;
+    len = 0;
+    fprintf(stderr, "looping\n");
 
-    // TODO casting to int only casts first byte
-    type = *(unsigned int *) buf % 4;
-    fprintf(stderr, "type: %d\n", type);
-    if (type == 0) {                          // number
+    while (len < n) {
       ret = RAND_priv_bytes(buf, RAND_BYTES);
-      if (ret != 1)
+      if (ret != 1) {
+	fprintf(stderr, "RAND_priv_bytes: too few rand bytes\n");
 	return -1;
-      syll[len++] = 48 + *(unsigned int *) buf % 10;
-    } else if (type == 1) {                   // symbol
+      }
+
+      // TODO casting to int only casts first byte
+      type = *(unsigned int *) buf % 4;
+      fprintf(stderr, "type: %d\n", type);
+      if (type == 0) {                          // number
+	d_count++;
 	ret = RAND_priv_bytes(buf, RAND_BYTES);
 	if (ret != 1)
 	  return -1;
-	syll[len++] = syms[*(unsigned int *) buf % MAX_SYMS][0];
-    } else {                                  // syllable
-      int b = syllable(&syll[len], n - len);
-      if (b > 0)
-	len += b; // only advance len if remaining space was big enough
+	pass[len++] = 48 + *(unsigned int *) buf % 10;
+      } else if (type == 1) {                   // symbol
+	s_count++;
+	ret = RAND_priv_bytes(buf, RAND_BYTES);
+	if (ret != 1)
+	  return -1;
+	pass[len++] = syms[*(unsigned int *) buf % MAX_SYMS][0];
+      } else {                                  // syllable
+	int b = syllable(&pass[len], n - len);
+	if (b > 0)
+	  len += b; // only advance len if remaining space was big enough
+      }
     }
-  }
 
-  syll[len] = '\0';
+    pass[len] = '\0';
+
+  } while (d_count < d || s_count < s);
 
   return len;
 }
