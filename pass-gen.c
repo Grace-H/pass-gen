@@ -1,7 +1,8 @@
- /* pass-gen.c - pronouncable password generator
- *
- * author: Grace-H
- */
+ /*
+  * pass-gen.c - pronouncable password generator
+  *
+  * author: Grace-H
+  */
 
 #include <unistd.h>
 #include <stdio.h>
@@ -62,14 +63,15 @@ int main(int argc, char **argv){
       return 1;
     case '?':
       fprintf(stderr, "Unexpected option '-%c'\n", optopt);
-      return 1;
+      return -1;
     }
   }
 
-  char pass[n + 1];
+  char pass[n + 1];  // n + 1 for '\0'
   int len = generator(pass, n + 1, d, s);
   if (len < 0){
-    perror("generator error");
+    fprintf(stderr, "generator error\n");
+    return 1;
   }
 
   fprintf(stdout, "%s\n", pass);
@@ -87,18 +89,15 @@ int generator(char *pass, int n, int d, int s) {
   do {
     d_count = 0, s_count = 0;
     len = 0;
-    fprintf(stderr, "looping\n");
 
     while (len < n) {
+
       ret = RAND_priv_bytes(buf, RAND_BYTES);
       if (ret != 1) {
-	fprintf(stderr, "RAND_priv_bytes: too few rand bytes\n");
 	return -1;
       }
-
-      // TODO casting to int only casts first byte
       type = *(unsigned int *) buf % 4;
-      fprintf(stderr, "type: %d\n", type);
+
       if (type == 0) {                          // number
 	d_count++;
 	ret = RAND_priv_bytes(buf, RAND_BYTES);
