@@ -20,6 +20,13 @@
 int generator(char *buf, int n, int d, int s);
 int syllable(char *syll, int n);
 
+char *short_help = "Usage: pass-gen [-n length] [-d numbers] [-s symbols]\n";
+char *options = "Options:\n"
+                " -h\tShow this text.\n"
+                " -n\tLength of password. [default: 16]\n"
+                " -d\tMinimum numbers in password.\n"
+                " -s\tMinimum symbols in password.";
+
 char begs[46][3] = {
   "b\0", "c\0","d\0", "f\0", "g\0", "h\0", "j\0", "k\0", "l\0", "m\0",
   "n\0", "p\0", "q\0", "r\0", "s\0", "t\0", "v\0", "w\0", "x\0", "y\0",
@@ -47,8 +54,9 @@ int main(int argc, char **argv){
   while((opt = getopt(argc, argv, ":l:s:n:d:h")) != -1){
     switch(opt){
     case 'h':
-      printf("helping you...\n");
-      break;
+      puts(short_help);
+      puts(options);
+      return 0;
     case 's':
       s = atoi(optarg);
       break;
@@ -60,10 +68,12 @@ int main(int argc, char **argv){
       break;
     case ':':
       fprintf(stderr, "Missing argument for option '-%c'\n", optopt);
+      fputs(short_help, stderr);
       return 1;
     case '?':
-      fprintf(stderr, "Unexpected option '-%c'\n", optopt);
-      return -1;
+      fprintf(stderr, "Invalid option '-%c'\n", optopt);
+      fputs(short_help, stderr);
+      return 1;
     }
   }
 
