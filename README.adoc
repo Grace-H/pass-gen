@@ -1,3 +1,16 @@
 = pass-gen
 
-Pronounceable password generator
+An easy-to-use pronounceable password generator with a command-line interface.
+
+== Usage
+[source]
+----
+Usage: pass-gen [-h] [-n length] [-d numbers] [-s symbols]
+Options
+  -h  Show this text.
+  -n  Length of password. [default: 16]
+  -d  Minimum numbers in password.
+  -s  Minimum symbols in password.
+----
+== Dependencies
+* OpenSSL@3.0 or greater
